@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            background-image: url("1330873-clouds-weather.webp");
+            margin: 0;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        .container {
+            background: rgba(2, 2, 2,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            width: 200px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #weather-result {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="city-input" placeholder="Enter city">
+        <button id="search-btn">Search Weather</button>
+        <div id="weather-result"></div>
+    </div>
+
+    <script>
+        const apiKey = 'c7b09558f42549d8a2892816241810'; 
+        const searchBtn = document.getElementById('search-btn');
+        const cityInput = document.getElementById('city-input');
+        const weatherResult = document.getElementById('weather-result');
+
+        searchBtn.addEventListener('click', () => {
+            let city = cityInput.value.trim();
+            if (city) {
+                city = formatCityName(city);
+                fetchWeather(city);
+            } else {
+                weatherResult.innerHTML = "<p>Please enter a valid city name.</p>";
+            }
+        });
+
+        async function fetchWeather(city) {
+            try {
+                const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=yes`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displayWeather(data);
+                } else {
+                    weatherResult.innerHTML = "<p>City not found</p>";
+                }
+            } catch (error) {
+                weatherResult.innerHTML = `<p>Error fetching weather data: ${error.message}</p>`;
+                console.error("Fetch error:", error);
+            }
+        }
+
+        function displayWeather(data) {
+            const { location, current } = data;
+            weatherResult.innerHTML = `
+                <h2>${location.name}, ${location.country}</h2>
+                <p>🌡️ Temperature: ${current.temp_c}°C</p>
+                <p>Condition: ${current.condition.text}</p>
+                <p>💧 Humidity: ${current.humidity}%</p>
+                <p>💨 Wind Speed: ${current.wind_kph} km/h</p>
+
+            `;
+        }
+
+        function formatCityName(city) {
+            return city.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase());
+        }
+    </script>
+</body>
+</html>
